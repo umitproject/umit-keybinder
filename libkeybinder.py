@@ -37,12 +37,45 @@ else:
 	
 kb = Keybinder()
 
+binds = []
+
 def bind(modifiers, key, handler, param=None):
     """
+    Bind a key combination to an handler if keys aren't already binded
     """
-    kb.bind(modifiers, key, handler, param)
+    if check_bind(modifiers, key) and kb.bind(modifiers, key, handler, param):
+        binds.append((modifiers, key, handler))
+        return True
+    else:
+        return False
     
 def unbind(modifiers, key, handler):
     """
+    Remove previous created bind
     """
-    kb.unbind(modifiers, key, handler)
+    if not check_bind(modifiers, key):
+        kb.unbind(modifiers, key, handler)
+        binds.remove((modifiers, key, handler))
+        return True
+    else:
+        return False
+    
+def unbind_all():
+    """
+    Remove all binds created
+    """
+    _binds = list(binds)
+    for b in _binds:
+        (modifiers, key, handler) = b
+        unbind(modifiers, key, handler)
+        
+def check_bind(modifiers, key):
+    """
+    Verify if the keyshortcut doesn't exist
+    return True if key combination available, False otherwise
+    """
+    for b in binds:
+        (b_modifiers, b_key, _) = b
+        if b_modifiers == modifiers and b_key == key:
+            return False
+    return True
